@@ -1,22 +1,30 @@
-# Flutter Items App & .NET Core API
+# Flutter Items App & .NET Core API (Multi-Platform)
 
-โปรเจกต์นี้เป็นแอปพลิเคชัน Flutter ที่เชื่อมต่อกับ .NET Core API เพื่อแสดงรายการข้อมูล
+โปรเจกต์นี้เป็นแอปพลิเคชัน Flutter ที่เชื่อมต่อกับ .NET Core API เพื่อแสดงรายการข้อมูล รองรับการทำงานบนหลายแพลตฟอร์ม
 
 ## 🏗️ โครงสร้างโปรเจกต์
 
 ```
 agent_exam/
-├── flutter_items_app/    # Flutter Application
-└── ItemsApi/            # .NET Core Web API
+├── flutter_items_app/    # Flutter Application (Multi-Platform)
+├── ItemsApi/            # .NET Core Web API
+├── .vscode/             # VS Code Configuration
+│   ├── launch.json      # Debug configurations
+│   ├── tasks.json       # Build & run tasks
+│   └── settings.json    # Workspace settings
+└── test-platforms.ps1   # Platform testing script
 ```
 
 ## 📱 Flutter App Features
 
-- ✅ รองรับ macOS, iOS, และ Android
-- ✅ UI สวยงามด้วย Material Design 3
-- ✅ เรียก API และแสดงผลข้อมูล
-- ✅ Loading states และ Error handling
-- ✅ รองรับภาษาไทย
+- ✅ **Multi-Platform Support**: Windows Desktop, Web, macOS, iOS, และ Android
+- ✅ **Responsive Design**: แสดงผลที่แตกต่างกันสำหรับ Desktop และ Mobile
+- ✅ **Material Design 3**: UI สวยงามและทันสมัย
+- ✅ **Desktop Layout**: Sidebar navigation สำหรับ Windows Desktop
+- ✅ **Grid View**: แสดงรายการแบบ Grid บน Desktop
+- ✅ **API Integration**: เรียก API และแสดงผลข้อมูล
+- ✅ **Error Handling**: Loading states และ Error handling
+- ✅ **Thai Language**: รองรับภาษาไทยเต็มรูปแบบ
 
 ## 🔧 .NET Core API Features
 
@@ -25,41 +33,114 @@ agent_exam/
 - ✅ เปิดใช้งาน CORS สำหรับ Flutter
 - ✅ รองรับข้อมูลภาษาไทย
 
-## 🚀 การรันโปรเจกต์
+## 🎯 Supported Platforms
 
-### Backend (.NET Core API)
+| Platform | Status | Notes |
+|----------|--------|-------|
+| 🪟 Windows Desktop | ✅ | Native Windows app with desktop-optimized UI |
+| 🌐 Web (Chrome/Edge) | ✅ | PWA-ready with responsive design |
+| 🍎 macOS | ✅ | Native macOS app |
+| 📱 iOS | ✅ | Native iOS app |
+| 🤖 Android | ✅ | Native Android app |
 
-1. เข้าไปใน folder ItemsApi:
-   \`\`\`bash
-   cd ItemsApi
-   \`\`\`
+## 🚀 วิธีการรันโปรเจกต์
 
-2. รัน API server:
-   \`\`\`bash
-   dotnet run
-   \`\`\`
+### 🎮 Quick Start (แนะนำ)
 
-   API จะรันที่: `http://localhost:5160`
+**ใช้ VS Code Tasks และ Debug Configurations:**
 
-### Frontend (Flutter App)
+1. เปิด VS Code ใน folder `agent_exam`
+2. กด `F5` เพื่อเข้า Debug mode
+3. เลือก configuration:
+   - `Launch Flutter (Web) + API` - รัน Web app + API
+   - `Launch Flutter (Windows) + API` - รัน Windows app + API
+   - `Flutter: Debug (Web)` - รัน Web app เท่านั้น
+   - `Flutter: Debug (Windows)` - รัน Windows app เท่านั้น
+   - `ItemsApi: Debug` - รัน API เท่านั้น
 
-1. เข้าไปใน folder flutter_items_app:
-   \`\`\`bash
-   cd flutter_items_app
-   \`\`\`
+### 🔧 Manual Setup
 
-2. ติดตั้ง dependencies:
-   \`\`\`bash
-   flutter pub get
-   \`\`\`
+#### Backend (.NET Core API)
 
-3. รันแอปบน platform ที่ต้องการ:
-   \`\`\`bash
-   # รันบน macOS
-   flutter run -d macos
+```bash
+cd ItemsApi
+dotnet run
+```
+API จะรันที่: `http://localhost:5160`
+
+#### Frontend (Flutter App)
+
+```bash
+cd flutter_items_app
+flutter pub get
+
+# Windows Desktop
+flutter run -d windows
+
+# Web Browser
+flutter run -d chrome
+
+# Mobile/Other platforms
+flutter run -d ios      # iOS
+flutter run -d android  # Android
+flutter run -d macos    # macOS
+```
+
+### 🔨 Build สำหรับ Production
+
+```bash
+# Build Windows Desktop
+flutter build windows
+
+# Build Web
+flutter build web
+
+# Build iOS
+flutter build ios
+
+# Build Android
+flutter build apk
+```
+
+## 🐛 Troubleshooting
+
+### Java Version Issues (Android)
+
+หากพบ error "Android Gradle plugin requires Java 17 to run. You are currently using Java 11":
+
+**วิธีแก้ไข:**
+
+1. **รันสคริปต์อัตโนมัติ:**
+   ```powershell
+   .\fix-java-version.ps1
+   .\fix-vscode-java.ps1
+   ```
+
+2. **แก้ไขด้วยตนเอง:**
+   ```powershell
+   # ตั้งค่า JAVA_HOME
+   $env:JAVA_HOME="C:\Program Files\Android\Android Studio\jbr"
    
-   # รันบน iOS Simulator
-   flutter run -d ios
+   # ตั้งค่าถาวร
+   [Environment]::SetEnvironmentVariable("JAVA_HOME", "C:\Program Files\Android\Android Studio\jbr", "User")
+   ```
+
+3. **รีสตาร์ท VS Code** และเปิด workspace ใหม่
+
+4. **หากยังมีปัญหา** ให้รันคำสั่งใน VS Code terminal:
+   ```powershell
+   $env:JAVA_HOME="C:\Program Files\Android\Android Studio\jbr"
+   ```
+
+### การตรวจสอบ Java Version
+
+```bash
+# ตรวจสอบ Java version ปัจจุบัน
+java -version
+
+# ตรวจสอบ Android Studio's Java
+"C:\Program Files\Android\Android Studio\jbr\bin\java.exe" -version
+```
    
    # รันบน Android Emulator
    flutter run -d android
