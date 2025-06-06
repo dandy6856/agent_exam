@@ -1,0 +1,83 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "🚀 Flutter (macOS)",
+            "type": "dart",
+            "request": "launch",
+            "program": "flutter_items_app/lib/main.dart",
+            "cwd": "${workspaceFolder}/flutter_items_app",
+            "args": [
+                "-d",
+                "macos"
+            ],
+            "console": "debugConsole"
+        },
+        {
+            "name": "📱 Flutter (iOS Simulator)",
+            "type": "dart",
+            "request": "launch",
+            "program": "flutter_items_app/lib/main.dart",
+            "cwd": "${workspaceFolder}/flutter_items_app",
+            "args": [
+                "-d",
+                "ios"
+            ],
+            "console": "debugConsole"
+        },
+        {
+            "name": "🤖 Flutter (Android Emulator)",
+            "type": "dart",
+            "request": "launch",
+            "program": "flutter_items_app/lib/main.dart",
+            "cwd": "${workspaceFolder}/flutter_items_app",
+            "args": [
+                "-d",
+                "android"
+            ],
+            "console": "debugConsole"
+        },
+        {
+            "name": "🌐 Flutter (Chrome)",
+            "type": "dart",
+            "request": "launch",
+            "program": "flutter_items_app/lib/main.dart",
+            "cwd": "${workspaceFolder}/flutter_items_app",
+            "args": [
+                "-d",
+                "chrome"
+            ],
+            "console": "debugConsole"
+        },
+        {
+            "name": "⚙️ .NET Core API",
+            "type": "coreclr",
+            "request": "launch",
+            "program": "${workspaceFolder}/ItemsApi/bin/Debug/net9.0/ItemsApi.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/ItemsApi",
+            "stopAtEntry": false,
+            "serverReadyAction": {
+                "action": "openExternally",
+                "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+            },
+            "env": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            },
+            "sourceFileMap": {
+                "/Views": "${workspaceFolder}/Views"
+            },
+            "preLaunchTask": "build-api"
+        }
+    ],
+    "compounds": [
+        {
+            "name": "🔄 Full Stack (API + Flutter macOS)",
+            "configurations": [
+                "⚙️ .NET Core API",
+                "🚀 Flutter (macOS)"
+            ],
+            "stopAll": true
+        }
+    ]
+}
