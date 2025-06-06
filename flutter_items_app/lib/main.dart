@@ -192,8 +192,16 @@ class _ItemsContentState extends State<ItemsContent> {
     });
 
     try {
+      // ใช้ 10.0.2.2 สำหรับ Android Emulator, 127.0.0.1 สำหรับ platforms อื่น
+      String baseUrl = '127.0.0.1';
+      
+      // ตรวจสอบว่าเป็น Android หรือไม่
+      if (Theme.of(context).platform == TargetPlatform.android) {
+        baseUrl = '10.0.2.2';
+      }
+      
       final response = await http.get(
-        Uri.parse('http://127.0.0.1:5160/api/items'),
+        Uri.parse('http://$baseUrl:5160/api/items'),
         headers: {'Content-Type': 'application/json'},
       );
 

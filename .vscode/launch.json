@@ -5,7 +5,7 @@
             "name": "🚀 Flutter (macOS)",
             "type": "dart",
             "request": "launch",
-            "program": "flutter_items_app/lib/main.dart",
+            "program": "lib/main.dart",
             "cwd": "${workspaceFolder}/flutter_items_app",
             "args": [
                 "-d",
@@ -17,11 +17,11 @@
             "name": "📱 Flutter (iOS Simulator)",
             "type": "dart",
             "request": "launch",
-            "program": "flutter_items_app/lib/main.dart",
+            "program": "lib/main.dart",
             "cwd": "${workspaceFolder}/flutter_items_app",
             "args": [
                 "-d",
-                "ios"
+                "9D5B83A6-3A30-45FF-8CAF-8201B63373FB"
             ],
             "console": "debugConsole"
         },
@@ -29,11 +29,11 @@
             "name": "🤖 Flutter (Android Emulator)",
             "type": "dart",
             "request": "launch",
-            "program": "flutter_items_app/lib/main.dart",
+            "program": "lib/main.dart",
             "cwd": "${workspaceFolder}/flutter_items_app",
             "args": [
                 "-d",
-                "android"
+                "emulator-5554"
             ],
             "console": "debugConsole"
         },
@@ -41,12 +41,20 @@
             "name": "🌐 Flutter (Chrome)",
             "type": "dart",
             "request": "launch",
-            "program": "flutter_items_app/lib/main.dart",
+            "program": "lib/main.dart",
             "cwd": "${workspaceFolder}/flutter_items_app",
             "args": [
                 "-d",
                 "chrome"
             ],
+            "console": "debugConsole"
+        },
+        {
+            "name": "🔄 Flutter (Auto-detect Device)",
+            "type": "dart",
+            "request": "launch",
+            "program": "lib/main.dart",
+            "cwd": "${workspaceFolder}/flutter_items_app",
             "console": "debugConsole"
         },
         {
@@ -76,6 +84,22 @@
             "configurations": [
                 "⚙️ .NET Core API",
                 "🚀 Flutter (macOS)"
+            ],
+            "stopAll": true
+        },
+        {
+            "name": "🔄 Full Stack (API + Flutter Chrome)",
+            "configurations": [
+                "⚙️ .NET Core API",
+                "🌐 Flutter (Chrome)"
+            ],
+            "stopAll": true
+        },
+        {
+            "name": "🔄 Full Stack (API + Flutter Android)",
+            "configurations": [
+                "⚙️ .NET Core API",
+                "🤖 Flutter (Android Emulator)"
             ],
             "stopAll": true
         }
