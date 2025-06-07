@@ -1,29 +1,133 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'models/user.dart';
+import 'pages/login_page.dart';
+import 'services/auth_service.dart';
 
+// ฟังก์ชันหลักของแอปพลิเคชัน Flutter
 void main() {
   runApp(const MyApp());
 }
 
+// คลาส MyApp เป็นจุดเริ่มต้นของแอปพลิเคชัน
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Items App',
+      title: 'Items App', // ชื่อแอปพลิเคชัน
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.blue,
+        ), // ธีมสีของแอป
+        useMaterial3: true, // ใช้ Material Design 3
       ),
-      home: const ResponsiveItemsPage(),
+      home: const AuthWrapper(), // หน้าแรกของแอป
     );
   }
 }
 
+/// Wrapper สำหรับตรวจสอบสถานะการเข้าสู่ระบบ
+class AuthWrapper extends StatefulWidget {
+  const AuthWrapper({super.key});
+
+  @override
+  State<AuthWrapper> createState() => _AuthWrapperState();
+}
+
+class _AuthWrapperState extends State<AuthWrapper> {
+  User? _currentUser;
+
+  /// แสดงหน้า Login
+  Future<void> _showLogin() async {
+    final user = await Navigator.of(
+      context,
+    ).push<User>(MaterialPageRoute(builder: (context) => const LoginPage()));
+
+    if (user != null) {
+      setState(() {
+        _currentUser = user;
+      });
+    }
+  }
+
+  /// ออกจากระบบ
+  Future<void> _logout() async {
+    await AuthService.logout();
+    setState(() {
+      _currentUser = null;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_currentUser == null) {
+      // แสดงหน้าต้อนรับก่อนเข้าสู่ระบบ
+      return Scaffold(
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(32),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.inventory,
+                  size: 100,
+                  color: Theme.of(context).primaryColor,
+                ),
+                const SizedBox(height: 24),
+                Text(
+                  'Items App',
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'ระบบจัดการรายการสินค้าและบริการ',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyLarge?.copyWith(color: Colors.grey.shade600),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 48),
+                ElevatedButton.icon(
+                  onPressed: _showLogin,
+                  icon: const Icon(Icons.login),
+                  label: const Text('เข้าสู่ระบบ'),
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size(200, 50),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 12,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    // แสดงหน้าหลักหลังจากเข้าสู่ระบบแล้ว
+    return ResponsiveItemsPage(user: _currentUser!, onLogout: _logout);
+  }
+}
+
+// คลาส ResponsiveItemsPage ใช้สำหรับแสดงหน้า UI ที่ปรับเปลี่ยนตามขนาดหน้าจอ
 class ResponsiveItemsPage extends StatelessWidget {
-  const ResponsiveItemsPage({super.key});
+  final User user;
+  final VoidCallback onLogout;
+
+  const ResponsiveItemsPage({
+    super.key,
+    required this.user,
+    required this.onLogout,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -33,17 +137,21 @@ class ResponsiveItemsPage extends StatelessWidget {
         bool isDesktop = constraints.maxWidth > 800;
 
         if (isDesktop) {
-          return const DesktopLayout();
+          return DesktopLayout(user: user, onLogout: onLogout);
         } else {
-          return const MobileLayout();
+          return MobileLayout(user: user, onLogout: onLogout);
         }
       },
     );
   }
 }
 
+// คลาส DesktopLayout ใช้สำหรับแสดง UI ใน Desktop
 class DesktopLayout extends StatelessWidget {
-  const DesktopLayout({super.key});
+  final User user;
+  final VoidCallback onLogout;
+
+  const DesktopLayout({super.key, required this.user, required this.onLogout});
 
   @override
   Widget build(BuildContext context) {
@@ -52,12 +160,15 @@ class DesktopLayout extends StatelessWidget {
         children: [
           // Sidebar
           Container(
-            width: 280,
+            width: 280, // กำหนดความกว้างของ Sidebar
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceVariant,
+              color:
+                  Theme.of(
+                    context,
+                  ).colorScheme.surfaceVariant, // สีพื้นหลังของ Sidebar
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
+                  color: Colors.black.withOpacity(0.1), // เงาของ Sidebar
                   blurRadius: 4,
                   offset: const Offset(2, 0),
                 ),
@@ -65,14 +176,15 @@ class DesktopLayout extends StatelessWidget {
             ),
             child: Column(
               children: [
+                // Header
                 Container(
                   padding: const EdgeInsets.all(24),
                   width: double.infinity,
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        Theme.of(context).colorScheme.primary,
-                        Theme.of(context).colorScheme.primaryContainer,
+                        Theme.of(context).colorScheme.primary, // สีหลัก
+                        Theme.of(context).colorScheme.primaryContainer, // สีรอง
                       ],
                     ),
                   ),
@@ -80,7 +192,7 @@ class DesktopLayout extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Items App',
+                        'Items App', // ชื่อแอปพลิเคชัน
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 24,
@@ -89,12 +201,88 @@ class DesktopLayout extends StatelessWidget {
                       ),
                       SizedBox(height: 8),
                       Text(
-                        'รายการสินค้าและบริการ',
+                        'รายการสินค้าและบริการ', // คำอธิบายแอป
                         style: TextStyle(color: Colors.white70, fontSize: 14),
                       ),
                     ],
                   ),
                 ),
+
+                // ข้อมูลผู้ใช้
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        CircleAvatar(
+                          radius: 30,
+                          backgroundColor: Theme.of(context).primaryColor,
+                          child: Text(
+                            user.displayName.isNotEmpty
+                                ? user.displayName[0]
+                                : user.username[0],
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          user.displayName,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '@${user.username}',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Theme.of(
+                              context,
+                            ).primaryColor.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            user.role,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Theme.of(context).primaryColor,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                // ข้อมูลระบบ
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.all(16),
@@ -102,17 +290,44 @@ class DesktopLayout extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          'Platform Information',
+                          'ข้อมูลระบบ', // ข้อมูลแพลตฟอร์ม
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
                         const SizedBox(height: 12),
-                        _buildInfoCard('Platform', 'Desktop'),
-                        _buildInfoCard('API Endpoint', 'localhost:5160'),
-                        _buildInfoCard('UI Framework', 'Flutter'),
+                        _buildInfoCard(
+                          'Platform',
+                          'Desktop',
+                        ), // การ์ดข้อมูลแพลตฟอร์ม
+                        _buildInfoCard(
+                          'API Endpoint',
+                          '${AuthService.getBaseUrl()}:5160',
+                        ), // การ์ดข้อมูล API
+                        _buildInfoCard(
+                          'UI Framework',
+                          'Flutter',
+                        ), // การ์ดข้อมูล UI Framework
                       ],
+                    ),
+                  ),
+                ),
+
+                // ปุ่มออกจากระบบ
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: onLogout,
+                      icon: const Icon(Icons.logout),
+                      label: const Text('ออกจากระบบ'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red.shade50,
+                        foregroundColor: Colors.red.shade700,
+                        minimumSize: const Size(double.infinity, 48),
+                      ),
                     ),
                   ),
                 ),
@@ -157,22 +372,92 @@ class DesktopLayout extends StatelessWidget {
   }
 }
 
+// คลาส MobileLayout ใช้สำหรับแสดง UI ใน Mobile
 class MobileLayout extends StatelessWidget {
-  const MobileLayout({super.key});
+  final User user;
+  final VoidCallback onLogout;
+
+  const MobileLayout({super.key, required this.user, required this.onLogout});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('รายการสินค้า'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        elevation: 2,
+        title: const Text('รายการสินค้า'), // ชื่อหน้าใน Mobile
+        backgroundColor:
+            Theme.of(
+              context,
+            ).colorScheme.inversePrimary, // สีพื้นหลังของ AppBar
+        elevation: 2, // ความสูงของเงา AppBar
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: (value) {
+              if (value == 'logout') {
+                onLogout();
+              }
+            },
+            itemBuilder:
+                (context) => [
+                  PopupMenuItem(
+                    value: 'profile',
+                    child: Row(
+                      children: [
+                        const Icon(Icons.person),
+                        const SizedBox(width: 8),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(user.displayName),
+                            Text(
+                              '@${user.username}',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuDivider(),
+                  const PopupMenuItem(
+                    value: 'logout',
+                    child: Row(
+                      children: [
+                        Icon(Icons.logout, color: Colors.red),
+                        SizedBox(width: 8),
+                        Text('ออกจากระบบ', style: TextStyle(color: Colors.red)),
+                      ],
+                    ),
+                  ),
+                ],
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: CircleAvatar(
+                radius: 16,
+                backgroundColor: Theme.of(context).primaryColor,
+                child: Text(
+                  user.displayName.isNotEmpty
+                      ? user.displayName[0]
+                      : user.username[0],
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
-      body: const ItemsContent(),
+      body: const ItemsContent(), // เนื้อหาในหน้า Mobile
     );
   }
 }
 
+// คลาส ItemsContent ใช้สำหรับแสดงรายการสินค้า
 class ItemsContent extends StatefulWidget {
   const ItemsContent({super.key});
 
@@ -181,9 +466,9 @@ class ItemsContent extends StatefulWidget {
 }
 
 class _ItemsContentState extends State<ItemsContent> {
-  List<String> items = [];
-  bool isLoading = false;
-  String? error;
+  List<String> items = []; // รายการสินค้า
+  bool isLoading = false; // สถานะการโหลดข้อมูล
+  String? error; // ข้อผิดพลาด
 
   Future<void> fetchItems() async {
     setState(() {
@@ -192,14 +477,9 @@ class _ItemsContentState extends State<ItemsContent> {
     });
 
     try {
-      // ใช้ 10.0.2.2 สำหรับ Android Emulator, 127.0.0.1 สำหรับ platforms อื่น
-      String baseUrl = '127.0.0.1';
-      
-      // ตรวจสอบว่าเป็น Android หรือไม่
-      if (Theme.of(context).platform == TargetPlatform.android) {
-        baseUrl = '10.0.2.2';
-      }
-      
+      // ใช้ AuthService เพื่อรับ base URL ที่ถูกต้อง
+      final baseUrl = AuthService.getBaseUrl();
+
       final response = await http.get(
         Uri.parse('http://$baseUrl:5160/api/items'),
         headers: {'Content-Type': 'application/json'},

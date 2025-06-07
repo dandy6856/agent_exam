@@ -1,6 +1,10 @@
-# Flutter Items App & .NET Core API (Multi-Platform)
+# Flutter Items App & .NET Core API (Multi-Platform) 🚀
 
-โปรเจกต์นี้เป็นแอปพลิเคชัน Flutter ที่เชื่อมต่อกับ .NET Core API เพื่อแสดงรายการข้อมูล รองรับการทำงานบนหลายแพลตฟอร์ม
+โปรเจกต์นี้เป็นแอปพลิเคชัน Flutter ที่เชื่อมต่อกับ .NET Core API พร้อมระบบการเข้าสู่ระบบแบบจำลอง รองรับการทำงานบนหลายแพลตฟอร์ม
+
+## 🎉 **STATUS: COMPLETE & READY!**
+
+**✅ ระบบเข้าสู่ระบบพร้อมใช้งาน** | **✅ API ทำงานปกติ** | **✅ Flutter App พร้อมแล้ว**
 
 ## 🏗️ โครงสร้างโปรเจกต์
 
@@ -12,8 +16,48 @@ agent_exam/
 │   ├── launch.json      # Debug configurations
 │   ├── tasks.json       # Build & run tasks
 │   └── settings.json    # Workspace settings
-└── test-platforms.ps1   # Platform testing script
+├── start-api.sh         # Quick API startup script
+├── start-flutter.sh     # Quick Flutter startup script  
+├── start-flutter-web.sh # Quick Flutter web startup script
+├── LOGIN_README.md      # Login system documentation
+├── SYSTEM_COMPLETE.md   # Complete system status
+└── INTEGRATION_TEST.md  # Integration test results
 ```
+
+## 🚀 Quick Start (Ready to Use!)
+
+### Option 1: VS Code Debug (Recommended)
+```bash
+# 1. Open in VS Code
+code .
+
+# 2. Go to Debug panel (⌘+Shift+D)
+# 3. Select "🔄 Full Stack (API + Flutter macOS)" 
+# 4. Press F5 to start both API and Flutter
+```
+
+### Option 2: Manual Scripts
+```bash
+# Start API server
+./start-api.sh
+
+# Start Flutter (Desktop)
+./start-flutter.sh
+
+# Or start Flutter (Web)
+./start-flutter-web.sh
+```
+
+### 🔑 Demo Login Accounts
+- **Admin**: `admin` / `admin123` (ผู้ดูแลระบบ)
+- **User**: `user` / `user123` (ผู้ใช้ทั่วไป)
+- **Demo**: `demo` / `demo` (ผู้ใช้ทดสอบ)
+
+### 🌐 URLs
+- **API Server**: http://localhost:5160
+- **Flutter Web**: http://localhost:3000 (when using web version)
+
+---
 
 ## 📱 Flutter App Features
 

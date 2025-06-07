@@ -64,16 +64,11 @@
             "program": "${workspaceFolder}/ItemsApi/bin/Debug/net9.0/ItemsApi.dll",
             "args": [],
             "cwd": "${workspaceFolder}/ItemsApi",
+            "console": "internalConsole",
             "stopAtEntry": false,
-            "serverReadyAction": {
-                "action": "openExternally",
-                "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
-            },
             "env": {
-                "ASPNETCORE_ENVIRONMENT": "Development"
-            },
-            "sourceFileMap": {
-                "/Views": "${workspaceFolder}/Views"
+                "ASPNETCORE_ENVIRONMENT": "Development",
+                "ASPNETCORE_URLS": "http://localhost:5160"
             },
             "preLaunchTask": "build-api"
         }
