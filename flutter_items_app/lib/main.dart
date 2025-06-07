@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'models/user.dart';
+import 'models/item.dart';
 import 'pages/login_page.dart';
 import 'services/auth_service.dart';
+import 'services/items_service.dart';
 
 // ฟังก์ชันหลักของแอปพลิเคชัน Flutter
 void main() {
@@ -303,7 +303,7 @@ class DesktopLayout extends StatelessWidget {
                         ), // การ์ดข้อมูลแพลตฟอร์ม
                         _buildInfoCard(
                           'API Endpoint',
-                          '${AuthService.getBaseUrl()}:5160',
+                          '${AuthService.getBaseUrl()}:5161',
                         ), // การ์ดข้อมูล API
                         _buildInfoCard(
                           'UI Framework',
@@ -466,7 +466,7 @@ class ItemsContent extends StatefulWidget {
 }
 
 class _ItemsContentState extends State<ItemsContent> {
-  List<String> items = []; // รายการสินค้า
+  List<Item> items = []; // รายการสินค้า
   bool isLoading = false; // สถานะการโหลดข้อมูล
   String? error; // ข้อผิดพลาด
 
@@ -477,26 +477,11 @@ class _ItemsContentState extends State<ItemsContent> {
     });
 
     try {
-      // ใช้ AuthService เพื่อรับ base URL ที่ถูกต้อง
-      final baseUrl = AuthService.getBaseUrl();
-
-      final response = await http.get(
-        Uri.parse('http://$baseUrl:5160/api/items'),
-        headers: {'Content-Type': 'application/json'},
-      );
-
-      if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body);
-        setState(() {
-          items = data.cast<String>();
-          isLoading = false;
-        });
-      } else {
-        setState(() {
-          error = 'เกิดข้อผิดพลาด: ${response.statusCode}';
-          isLoading = false;
-        });
-      }
+      final itemsList = await ItemsService.getItems();
+      setState(() {
+        items = itemsList;
+        isLoading = false;
+      });
     } catch (e) {
       setState(() {
         error = 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้: $e';
@@ -517,14 +502,14 @@ class _ItemsContentState extends State<ItemsContent> {
         children: [
           if (isDesktop) ...[
             Text(
-              'รายการสินค้าและบริการ',
+              'รายการสินค้าจาก SQL Server',
               style: Theme.of(
                 context,
               ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Text(
-              'ดึงข้อมูลจาก Items API',
+              'ดึงข้อมูลจาก SQL Server Database',
               style: Theme.of(
                 context,
               ).textTheme.bodyLarge?.copyWith(color: Colors.grey.shade600),
@@ -616,43 +601,126 @@ class _ItemsContentState extends State<ItemsContent> {
                         gridDelegate:
                             const SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: 2,
-                              childAspectRatio: 4,
+                              childAspectRatio: 2.2,
                               crossAxisSpacing: 16,
                               mainAxisSpacing: 16,
                             ),
                         itemCount: items.length,
                         itemBuilder: (context, index) {
+                          final item = items[index];
                           return Card(
                             elevation: 2,
                             child: Padding(
                               padding: const EdgeInsets.all(16),
-                              child: Row(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  CircleAvatar(
-                                    backgroundColor:
-                                        Theme.of(context).primaryColor,
-                                    child: Text(
-                                      '${index + 1}',
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
+                                  Row(
+                                    children: [
+                                      CircleAvatar(
+                                        backgroundColor:
+                                            Theme.of(context).primaryColor,
+                                        child: Text(
+                                          '${item.id}',
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
                                       ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 16),
-                                  Expanded(
-                                    child: Text(
-                                      items[index],
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w500,
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              item.name,
+                                              style: const TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                            if (item.category != null)
+                                              Text(
+                                                item.category!,
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: Colors.grey.shade600,
+                                                ),
+                                              ),
+                                          ],
+                                        ),
                                       ),
-                                    ),
+                                      Text(
+                                        '฿${item.price.toStringAsFixed(2)}',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                          color: Theme.of(context).primaryColor,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  const Icon(
-                                    Icons.arrow_forward_ios,
-                                    size: 16,
-                                    color: Colors.grey,
+                                  const SizedBox(height: 8),
+                                  if (item.description != null)
+                                    Text(
+                                      item.description!,
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey.shade700,
+                                      ),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  const Spacer(),
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.inventory,
+                                        size: 16,
+                                        color: Colors.grey.shade600,
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        'คงเหลือ: ${item.quantity}',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey.shade600,
+                                        ),
+                                      ),
+                                      const Spacer(),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 6,
+                                          vertical: 2,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color:
+                                              item.isActive
+                                                  ? Colors.green.shade100
+                                                  : Colors.red.shade100,
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          item.isActive
+                                              ? 'ใช้งาน'
+                                              : 'ปิดใช้งาน',
+                                          style: TextStyle(
+                                            fontSize: 10,
+                                            color:
+                                                item.isActive
+                                                    ? Colors.green.shade700
+                                                    : Colors.red.shade700,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
@@ -663,21 +731,94 @@ class _ItemsContentState extends State<ItemsContent> {
                       : ListView.builder(
                         itemCount: items.length,
                         itemBuilder: (context, index) {
+                          final item = items[index];
                           return Card(
                             margin: const EdgeInsets.only(bottom: 8),
                             child: ListTile(
                               leading: CircleAvatar(
                                 backgroundColor: Theme.of(context).primaryColor,
                                 child: Text(
-                                  '${index + 1}',
+                                  '${item.id}',
                                   style: const TextStyle(color: Colors.white),
                                 ),
                               ),
                               title: Text(
-                                items[index],
-                                style: const TextStyle(fontSize: 16),
+                                item.name,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
-                              trailing: const Icon(Icons.arrow_forward_ios),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  if (item.description != null)
+                                    Text(
+                                      item.description!,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  const SizedBox(height: 4),
+                                  Row(
+                                    children: [
+                                      Text(
+                                        '฿${item.price.toStringAsFixed(2)}',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: Theme.of(context).primaryColor,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        'คงเหลือ: ${item.quantity}',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Colors.grey.shade600,
+                                        ),
+                                      ),
+                                      if (item.category != null) ...[
+                                        const SizedBox(width: 8),
+                                        Text(
+                                          item.category!,
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.grey.shade600,
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              trailing: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                      vertical: 2,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color:
+                                          item.isActive
+                                              ? Colors.green.shade100
+                                              : Colors.red.shade100,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Text(
+                                      item.isActive ? 'ใช้งาน' : 'ปิดใช้งาน',
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        color:
+                                            item.isActive
+                                                ? Colors.green.shade700
+                                                : Colors.red.shade700,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           );
                         },

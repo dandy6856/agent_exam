@@ -17,5 +17,23 @@
         "**/.dart_tool/": true,
         "**/.pub/": true
     },
-    "dotnet.defaultSolution": "agent_exam.sln"
+    "dotnet.defaultSolution": "agent_exam.sln",
+    "sqltools.connections": [
+        {
+            "connectionTimeout": 15,
+            "mssqlOptions": {
+                "appName": "SQLTools",
+                "useUTC": true,
+                "encrypt": true,
+                "trustServerCertificate": true
+            },
+            "previewLimit": 50,
+            "server": "192.168.18.55",
+            "port": 1433,
+            "driver": "MSSQL",
+            "name": "SQL Pi4",
+            "username": "bubble",
+            "password": "dT$sql6856"
+        }
+    ]
 }
