@@ -22,7 +22,7 @@
             "label": "run-api",
             "type": "shell",
             "command": "dotnet",
-            "args": ["run"],
+            "args": ["run", "--launch-profile", "http"],
             "group": "build",
             "presentation": {
                 "echo": true,
@@ -103,6 +103,27 @@
                 "cwd": "${workspaceFolder}/flutter_items_app"
             },
             "isBackground": true
+        },
+        {
+            "label": "run-api-http",
+            "type": "shell",
+            "command": "dotnet",
+            "args": ["run", "--launch-profile", "http"],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "options": {
+                "cwd": "${workspaceFolder}/ItemsApi"
+            },
+            "problemMatcher": "$msCompile",
+            "isBackground": true,
+            "runOptions": {
+                "instanceLimit": 1
+            }
         }
     ]
 }
